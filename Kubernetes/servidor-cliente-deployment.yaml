@@ -1,0 +1,72 @@
+# Configuración del Deployment del cliente
+apiVersion: apps/v1
+
+# Establecer tipo Deployment
+kind: Deployment
+
+# Metadatos del Deployment
+metadata:
+
+  # Asignar nombre
+  name: servidor-cliente
+
+  # Asignar etiqueta
+  labels:
+    componente: servidor-cliente
+
+# Especificaciones del Deployment del cliente
+spec:
+
+  # Crear un único pod
+  replicas: 1
+
+  # Buscar Pods con la etiqueta componente: servidor-cliente
+  selector:
+    matchLabels:
+      componente: servidor-cliente
+
+  # Establecer estrategia de en caso de relanzar el deployment
+  # termine la verión anterior y lance la nueva
+  strategy:
+    type: Recreate
+
+  # Establecer plantilla de Pods
+  template:
+
+    # Metadatos de los Pods
+    metadata:
+
+      # Asignar etiqueta
+      labels:
+        componente: servidor-cliente
+
+    # Especificaciones de los Pods
+    spec:
+
+      # Especificaciones del contenedor de los Pods
+      containers:
+
+          # Asignar imagen, nombre y puertos a los Pods
+        - image: naiaraupv/clienteneo4j
+          name: servidor-cliente
+          ports:
+            - containerPort: 80
+          resources: {}
+
+          # Montar volumen bindmount en /html
+          volumeMounts:
+            - mountPath: /html
+              name: servidor-cliente-pvc
+
+      # Establecer política de reinicio en los Pods
+      # Reiniciar siempre. Si se ha parado manualmente, se reinicia cuando se reinicie el servicio Docker.
+      restartPolicy: Always
+
+      # Especificaciones del volumen bindmount
+      volumes:
+          # Establecer nombre y asignar reclamación
+        - name: servidor-cliente-pvc
+          persistentVolumeClaim:
+            claimName: servidor-cliente-pvc
+
+# Autora: Naiara Benito Balbás

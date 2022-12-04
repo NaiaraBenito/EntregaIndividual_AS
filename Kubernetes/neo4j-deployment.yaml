@@ -1,0 +1,96 @@
+# Configuración del Deployment de la BBDD
+apiVersion: apps/v1
+
+# Establecer tipo Deployment
+kind: Deployment
+
+# Metadatos del Deployment
+metadata:
+
+  # Asignar nombre
+  name: neo4j
+
+  # Asignar etiqueta
+  labels:
+    componente: neo4j
+
+# Especificaciones del Deployment de la BBDD
+spec:
+
+  # Crear un único Pod
+  replicas: 1
+
+  # Buscar Pods con la etiqueta componente: neo4j
+  selector:
+    matchLabels:
+      componente: neo4j
+
+  # Establecer estrategia de en caso de relanzar el deployment
+  # termine la verión anterior y lance la nueva
+  strategy:
+    type: Recreate
+  
+  # Establecer plantilla de Pods
+  template:
+
+    # Metadatos de los Pods
+    metadata:
+
+      # Asignar etiqueta
+      labels:
+        componente: neo4j
+
+    # Especificaciones de los Pods
+    spec:
+
+      # Especificaciones del contenedor de los Pods
+      containers:
+
+          # Asignar variables de entorno
+        - env:
+              # Asignar contraseña en la BBDD
+            - name: NEO4J_AUTH
+              value: neo4j/1234
+
+              # Aumentar memoria  
+            - name: NEO4J_dbms.memory.heap.initial_size
+              value: 1G
+            - name: NEO4J_dbms_memory_heap_max__size
+              value: 1G
+            - name: NEO4J_dbms_memory_pagecache_size
+              value: 1G
+
+          # Asignar imagen, nombre y puertos a los Pods
+          image: neo4j
+          name: neo4j
+          ports:
+            - containerPort: 7474
+            - containerPort: 7687
+          resources: {}
+
+          # Montar volumen persistente
+          volumeMounts:
+            - mountPath: /conf
+              name: myvol
+            - mountPath: /data
+              name: myvol
+            - mountPath: /import
+              name: myvol
+            - mountPath: /logs
+              name: myvol
+            - mountPath: /plugins
+              name: myvol
+
+      # Establecer política de reinicio en los Pods
+      # Reiniciar siempre. Si se ha parado manualmente, se reinicia cuando se reinicie el servicio Docker.
+      restartPolicy: Always
+
+      # Especificaciones del volumen persistente
+      volumes:
+
+          # Establecer nombre y asignar reclamación
+        - name: myvol
+          persistentVolumeClaim:
+            claimName: myvol
+
+# Autora: Naiara Benito Balbás

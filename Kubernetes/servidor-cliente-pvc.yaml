@@ -1,0 +1,29 @@
+# Configuración de la reclamación del volumen persistente (Bind Mount)
+apiVersion: v1
+
+# Establecer tipo PersistentVolumeClaim
+kind: PersistentVolumeClaim
+
+# Metadatos del PVC
+metadata:
+
+  # Asignar nombre
+  name: servidor-cliente-pvc
+
+  # Asignar etiquera
+  labels:
+    componente: servidor-cliente-pvc
+
+# Especificaciones del PVC
+spec:
+
+  # Solicitud de volumen accesible por un único nodo en modo lectura y escritura
+  accessModes:
+    - ReadWriteOnce
+
+  # Solicitud de volumen con 100MB de capacidad
+  resources:
+    requests:
+      storage: 100Mi
+
+# Autora: Naiara Benito Balbás

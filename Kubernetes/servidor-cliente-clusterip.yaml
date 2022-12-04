@@ -1,0 +1,35 @@
+# Configuración del ClusterIp
+apiVersion: v1
+
+# Establecer tipo Servicio
+kind: Service
+
+# Metadatos del ClusterIp
+metadata:
+
+  # Asignar nombre
+  name: servidor-cliente
+
+  # Asignar etiqueta
+  labels:
+    componente: servidor-cliente
+
+# Especificaciones del ClusterIp
+spec:
+
+  # Especificar el tipo de servicio: ClusterIP
+  type: ClusterIP
+
+  # Puertos
+  ports:
+
+      # Los Pods que se conecten por el puerto 80 redirigirlos al puerto 80
+    - name: "80"
+      port: 80
+      targetPort: 80
+
+  # Etiqueta de los objetos a los que redirigir el tráfico: Cliente
+  selector:
+    componente: servidor-cliente
+
+# Autora: Naiara Benito Balbaś

@@ -1,0 +1,40 @@
+# Configuración del ClusterIp
+apiVersion: v1
+
+# Establecer tipo Servicio
+kind: Service
+
+# Metadatos de ClusterIp
+metadata:
+
+  # Asignar nombre
+  name: neo4j
+
+  # Asignar etiqueta
+  labels:
+    componente: neo4j
+
+# Especificaciones del ClusterIp
+spec:
+
+  # Especificar el tipo de servicio: ClusterIP
+  type: ClusterIP
+
+  # Puertos
+  ports:
+
+      # Los Pods que se conecten por el puerto 7474 redirigirlos al puerto 7474 de la BBDD
+    - name: "7474"
+      port: 7474
+      targetPort: 7474
+
+      # Los Pods que se conecten por el puerto 7687 redirigirlos al puerto 7687 de la BBDD
+    - name: "7687"
+      port: 7687
+      targetPort: 7687
+
+  # Etiqueta de los objetos a los que redirigir el tráfico: BBDD
+  selector:
+    componente: neo4j
+
+# Autora: Naiara Benito Balbás
