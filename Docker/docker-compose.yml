@@ -1,0 +1,86 @@
+# Establecer la version 3 para que funcione neo4j
+version: '3'
+services:
+
+  # Contenedor que ejecuta la imagen de la BBDD neo4j      
+  neo4j:
+    
+    # Utiliza la imagen oficial de DockerHub
+    image: neo4j
+    container_name: neo4j
+
+    # Establecer política de reiniciar siempre excepto
+    # si se detiene manualmente
+    restart: unless-stopped
+   
+    # Redireccionar los puertos que utiliza la DDBB
+    ports:
+      - 7474:7474
+      - 7687:7687
+
+    # Crear un volumen dentro del contenedor para
+    # asegurar la persistencia de datos
+    volumes:
+      - myvol:/conf
+      - myvol:/data
+      - myvol:/import
+      - myvol:/logs
+      - myvol:/plugins
+
+    environment: 
+      # Aumentar el límite de memoria de NEO4J
+      - NEO4J_dbms_memory_pagecache_size=1G
+      - NEO4J_dbms.memory.heap.initial_size=1G
+      - NEO4J_dbms_memory_heap_max__size=1G
+
+      # Cambiar contraseña de la BBDD
+      - NEO4J_AUTH=neo4j/1234
+
+  # Contenedor del cliente. Crea la imagen partiendo del Dockerfile
+  servidor-cliente:
+    build: .
+
+    # Nombrar el contenedor
+    container_name: servidor-cliente
+
+    # Volumen bind mount para compartir el archivo index.html con
+    # la aplicación de apache. Montarla en la carpeta html
+    volumes:
+      - ./html:/html
+
+    # Establecer política de esperar a que el contenedor neo4j
+    # se ponga en marcha
+    depends_on:
+      - neo4j
+
+  # Contenedor de la tercera aplicación: Apache
+  servidor-html:
+
+    # Crear la imagen con el Dockerfile de la carpeta html/
+    build: html/
+
+    # Nombrar el contenedor
+    container_name: servidor-html
+
+    # Volumen bind mount para compartir el archivo index.html con
+    # la aplicación cliente. Montarla en la carpeta que utiliza
+    # apache para inprimir en el navegador
+    volumes:
+      - ./html:/usr/local/apache2/htdocs
+
+    # Redireccionar los puertos que utiliza apache
+    ports:
+      - 80:80
+      - 8080:8080
+    
+    # Establecer política de esperar a que el contenedor del cliente
+    # de neo4j se ponga en marcha
+    depends_on:
+      - servidor-cliente
+
+# Volúmenes persistentes
+volumes:
+
+  # Volumen que utiliza la BBDD
+  myvol:
+# Autora: Naiara Benito Balbás 
